@@ -1,0 +1,34 @@
+import os
+import csv
+
+def generate_pairs_csv(golden_dir, clean_dir, trojan_dir, output_csv):
+    golden_files = os.listdir(golden_dir)
+    with open(output_csv, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['image1', 'image2', 'label'])
+
+        for golden_file in golden_files:
+            pcb_id = os.path.splitext(golden_file)[0]
+
+            # Clean pairs (label=1)
+            for clean in os.listdir(clean_dir):
+                if clean.startswith(pcb_id):
+                    writer.writerow([
+                        os.path.join(golden_dir, golden_file),
+                        os.path.join(clean_dir, clean),
+                        1
+                    ])
+
+            # Trojan pairs (label=0)
+            for trojan in os.listdir(trojan_dir):
+                if trojan.startswith(pcb_id):
+                    writer.writerow([
+                        os.path.join(golden_dir, golden_file),
+                        os.path.join(trojan_dir, trojan),
+                        0
+                    ])
+
+# train csv
+generate_pairs_csv('data/Train/golden', 'data/Train/clean', 'data/Train/trojan', 'data/pairs/FCSN_train_pairs.csv')
+# test csv
+generate_pairs_csv('data/Test/golden', 'data/Test/clean', 'data/Test/trojan', 'data/pairs/FCSN_test_pairs.csv')
