@@ -19,19 +19,27 @@ def align_images(pui_image: np.ndarray, gm_image: np.ndarray) -> Tuple[np.ndarra
     matches = bf.knnMatch(des1, des2, k=2)
 
     good_matches = []
-    for m, n in matches:
+    # for m, n in matches:
+    #     if m.distance < 0.75 * n.distance:
+    #         good_matches.append(m)
+
+    # if len(good_matches) < 4:
+    #     return pui_image, gm_image
+    for pair in matches:
+        if len(pair) < 2:
+            continue
+        m, n = pair
         if m.distance < 0.75 * n.distance:
             good_matches.append(m)
-
     if len(good_matches) < 4:
         return pui_image, gm_image
-
+    
     src_pts = np.float32([kp1[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
     dst_pts = np.float32([kp2[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
 
     homography, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
     if homography is not None:
-        h, w = gm_image.shape
+        h, w = gm_image.shape[:2]
         aligned_pui = cv2.warpPerspective(pui_image, homography, (w, h))
         return aligned_pui, gm_image
 

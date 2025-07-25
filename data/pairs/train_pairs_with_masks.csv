@@ -1,0 +1,2 @@
+image1,image2,label,mask
+data/Train/golden\pcb1.jpg,data/Train/clean\pcb1_2.jpg,1,data/masks/train\mask_pcb1_1.jpg
